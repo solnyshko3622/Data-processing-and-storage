@@ -1,0 +1,278 @@
+openapi: 3.0.0
+info:
+  title: Flight Booking API
+  description: API for listing cities, airports, flights, booking flights, and check-ins.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+paths:
+  /cities:
+    get:
+      summary: List all available cities
+      parameters:
+        - in: query
+          name: lang
+          schema:
+            type: string
+          description: Language selection (e.g., en, ru)
+      responses:
+        '200':
+          description: A list of available cities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /airports:
+    get:
+      summary: List all available airports
+      parameters:
+        - in: query
+          name: lang
+          schema:
+            type: string
+          description: Language selection (e.g., en, ru)
+      responses:
+        '200':
+          description: A list of available airports
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /cities/airportsByCity/{city}:
+    get:
+      summary: List the airports within a specific city
+      parameters:
+        - in: path
+          name: city
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: lang
+          schema:
+            type: string
+          description: Language selection (e.g., en, ru)
+      responses:
+        '200':
+          description: A list of airports in the city
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /airports/{airport}/inbound-schedule:
+    get:
+      summary: List inbound flights for an airport
+      parameters:
+        - in: path
+          name: airport
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: days
+          schema:
+            type: string
+          description: Filter by days of the week
+        - in: query
+          name: arrival_time
+          schema:
+            type: string
+          description: Filter by arrival time
+        - in: query
+          name: flight_number
+          schema:
+            type: string
+          description: Filter by flight number
+        - in: query
+          name: origin
+          required: true
+          schema:
+            type: string
+          description: Origin of flights
+      responses:
+        '200':
+          description: Inbound flight schedule
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    flight_number:
+                      type: string
+                    departure:
+                      type: string
+                    arrival:
+                      type: string
+  /airports/{airport}/outbound-schedule:
+    get:
+      summary: List outbound flights for an airport
+      parameters:
+        - in: path
+          name: airport
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: days
+          schema:
+            type: string
+          description: Filter by days of the week
+        - in: query
+          name: arrival_time
+          schema:
+            type: string
+          description: Filter by arrival time
+        - in: query
+          name: flight_number
+          schema:
+            type: string
+          description: Filter by flight number
+        - in: query
+          name: destination
+          required: true
+          schema:
+            type: string
+          description: Origin of flights
+      responses:
+        '200':
+          description: Inbound flight schedule
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    flight_number:
+                      type: string
+                    departure:
+                      type: string
+                    arrival:
+                      type: string
+
+
+
+
+  /checking:
+    put:
+      summary: Online check-in for a flight
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ticket_no:
+                  type: string
+                passenger_info:
+                    type: object
+                    required:
+                      - name
+                      - passport
+                    properties:
+                      name:
+                        type: string
+                      passport:
+                        type: string
+                      amount:
+                        type: number
+                      fare_condition:
+                        type: string
+
+                      contacts:
+                        type: object
+                        properties:
+                          phone:
+                            type: string
+                          email:
+                            type: string
+      responses:
+        '200':
+          description: Check-in confirmation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  seat_no:
+                    type: string
+                  boarding_pass_no:
+                    type: string
+
+  /booking:
+    post:
+      summary: Create a booking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - flight_ids
+                - passengers
+              properties:
+                flight_ids:
+                  type: array
+                  items:
+                    type: string
+                passengers:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - name
+                      - passport
+                    properties:
+                      name:
+                        type: string
+                      passport:
+                        type: string
+                      amount:
+                        type: number
+                      fare_condition:
+                        type: string
+
+                      contacts:
+                        type: object
+                        properties:
+                          phone:
+                            type: string
+                          email:
+                            type: string
+      responses:
+        '201':
+          description: Booking confirmation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  book_ref:
+                    type: string
+                  tickets:
+                    type: array
+                    items:
+                      type: string
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+
+
